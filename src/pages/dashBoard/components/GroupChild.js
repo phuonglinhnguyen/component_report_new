@@ -5,7 +5,7 @@ import { withStyles, createMuiTheme, MuiThemeProvider } from '@material-ui/core/
 import ListItem from '@material-ui/core/ListItem';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
-
+import IconButton from '@material-ui/core/IconButton';
 const styles= (theme) => {
 	return {
 		listItem: {
@@ -14,7 +14,8 @@ const styles= (theme) => {
 			}
 		},
 		item: {
-			display: 'flex'
+			display: 'flex',
+			alignItems: 'center'
 		},
 		listItemActions: {
 			display: 'none'
@@ -44,33 +45,33 @@ const GroupChild = (props) => {
 	const { classes, groupItem, wrapStyles = {}, setIsOpenGroupChild, isOpenGroupChild } = props;
 	
 	const isEmptyFields = isEmpty(get(groupItem, 'childs', []));
-
+	const collapse = () => {
+		setIsOpenGroupChild({
+			...isOpenGroupChild,
+			[groupItem.name]: !isOpenGroupChild[groupItem.name]
+		});
+	};
 	return (
 		<MuiThemeProvider theme={theme_override}>
-			<ListItem
-				button
-				className={classes.listItem}
-				onClick={() => {
-					setIsOpenGroupChild({
-						...isOpenGroupChild,
-						[groupItem.name]: !isOpenGroupChild[groupItem.name]
-					});
-				}}
-			>
-				<div className={classes.item} style={wrapStyles}>
-					{isEmptyFields ? (
-						<div style={{ padding: '7px' }} />
-					) : isOpenGroupChild[groupItem.name] ? (
+		<ListItem button className={classes.listItem}>
+			<div className={classes.item} style={wrapStyles}>
+				{isEmptyFields ? (
+					<div style={{ padding: '12px' }} />
+				) : isOpenGroupChild[groupItem.name] ? (
+					<IconButton onClick={collapse} size="small">
 						<ExpandMore style={{ width: '15px' }} />
-					) : (
-								<ExpandLess style={{ width: '15px' }} />
-							)}
-					<Link to={`/dashboard/capture_monitoring?groupId=${groupItem.id}`} className={classes.itemLink}>
-						{groupItem.name}
-					</Link>
-				</div>
-			</ListItem>
-		</MuiThemeProvider>
+					</IconButton>
+				) : (
+					<IconButton onClick={collapse} size="small">
+						<ExpandLess style={{ width: '15px' }} />
+					</IconButton>
+				)}
+				<Link to={`/dashboard/capture_monitoring?groupId=${groupItem.id}`} className={classes.itemLink}>
+					{groupItem.name}
+				</Link>
+			</div>
+		</ListItem>
+	</MuiThemeProvider>
 	);
 };
 

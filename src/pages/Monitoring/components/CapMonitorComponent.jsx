@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { get, filter } from 'lodash';
+import { get, filter,isEmpty } from 'lodash';
 import moment from 'moment';
 import { createMuiTheme, MuiThemeProvider, withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -16,8 +16,8 @@ import IconButton from '@material-ui/core/IconButton';
 import ViewWorkflowDialog from './Dialogs/ViewWorkflowDialog';
 import DetailDialog from './Dialogs/DetailDialog';
 import ExportXLSX from './ExportXLSX';
-import {getProjects} from '../../../providers/data/mockData/projects'
-
+import { getProjects } from '../../../providers/data/mockData/projects'
+import {getGroupProjects} from "../../../providers/data/mockData/group_project";
 const styles: any = (theme: any) => {
 	return {
 		rowSmall: {
@@ -66,22 +66,20 @@ const theme = createMuiTheme({
 
 const CapMonitorComponent = (props) => {
 	const { classes } = props;
-const urlParams = new URLSearchParams(props.location.search);
-const groupId = urlParams.get('groupId');
-console.log({groupId})
+	const urlParams = new URLSearchParams(props.location.search);
+	const groupId = urlParams.get('groupId');
 
 	const captureMonitors = getProjects();
-	const [ page, setPage ] = useState(0);
-	const [ rowsPerPage, setRowsPerPage ] = useState(25);
-	const [ fromDateSearch, setFromDateSearch ] = useState('');
-	const [ toDateSearch, setToDateSearch ] = useState('');
-	const [ batchNameSearch, setBatchNameSearch ] = useState('');
-	const [ openViewWf, setOpenViewWf ] = React.useState(false);
-	const [ openViewDetail, setOpenViewDetail ] = useState(false);
-	const [ selectedCapture, setSelectedCapture ] = useState(null);
-	const [ choose, setChoose ] = useState('');
-	const [ role, setRole ] = useState('');
-  console.log(captureMonitors);
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(25);
+	const [fromDateSearch, setFromDateSearch] = useState('');
+	const [toDateSearch, setToDateSearch] = useState('');
+	const [batchNameSearch, setBatchNameSearch] = useState('');
+	const [openViewWf, setOpenViewWf] = React.useState(false);
+	const [openViewDetail, setOpenViewDetail] = useState(false);
+	const [selectedCapture, setSelectedCapture] = useState(null);
+	const [choose, setChoose] = useState('');
+	const [role, setRole] = useState('');
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -132,10 +130,46 @@ console.log({groupId})
 		console.log('ahihi chua load');
 	};
 
-	const checkDongHo = (groupId, cap_group_id) => {
-		return true
-	}
+	const deQuy = (groupProjects, ids) => {
+		groupProjects.forEach((groupProject) => {
+			const id = groupProject.id || '';
+			if (!isEmpty(id)) {
+				ids[groupProject.id] = true;
+			}
+			const groupProjectChilds = groupProject.childs || [];
+			if (!isEmpty(groupProjectChilds)) {
+				deQuy(groupProjectChilds, ids);
+			}
+		});
+		return ids;
+	};
 
+	// lấy những id bên trong childs đưa vào. ex: 'abc_id': ['child1_id', 'child2_id', ...]
+	const getGroupProjectChildIds = (groupProjectChilds, groupProjectIdObject) => {
+		groupProjectChilds.forEach((groupProject) => {
+			groupProjectIdObject.push(groupProject.id);
+			const childs = groupProject.childs || [];
+			getGroupProjectChildIds(childs, groupProjectIdObject);
+		});
+	};
+
+	// đệ quy lấy tất cả project group id
+	const prepareGroupProjectIds = (groupProjects, result) => {
+		groupProjects.forEach((groupProject) => {
+			result[groupProject.id] = [ groupProject.id ];
+			const childs = groupProject.childs || [];
+			getGroupProjectChildIds(childs, result[groupProject.id]);
+			prepareGroupProjectIds(childs, result);
+		});
+	};
+
+	const modifiedGroupProjectIds = {};
+	prepareGroupProjectIds(getGroupProjects(),modifiedGroupProjectIds);
+
+	const checkDongHo = (groupId, cap_group_id) => {
+	  const groupProjectChildIds = modifiedGroupProjectIds[groupId] || [];
+	  return groupProjectChildIds.some(groupProjectChildId => groupProjectChildId === cap_group_id)
+	}
 	return (
 		<div className={classes.report}>
 			<MuiThemeProvider theme={theme}>
@@ -226,12 +260,12 @@ console.log({groupId})
 								const cap_group_id = cap.group_id || ''
 								const isDongHo = checkDongHo(groupId, cap_group_id)
 								if (!isDongHo) return null
-								
-								const classify =get(cap,'classify.total',{})
-								const omr =get(cap,'omr.total',{})
-								const invoice_header =get(cap,'invoice_header.total',{})
-								const invoice_item =get(cap,'invoice_item.total',{})
-								const finished_export =get(cap,'finished_export.total',{})
+
+								const classify = get(cap, 'classify.total', {})
+								const omr = get(cap, 'omr.total', {})
+								const invoice_header = get(cap, 'invoice_header.total', {})
+								const invoice_item = get(cap, 'invoice_item.total', {})
+								const finished_export = get(cap, 'finished_export.total', {})
 								return (
 									<TableRow>
 										<TableCell style={{ width: '20px' }}>{index + 1}</TableCell>
@@ -349,7 +383,7 @@ console.log({groupId})
 					</Table>
 				</Paper>
 				<TablePagination
-					rowsPerPageOptions={[ 5, 10, 25 ]}
+					rowsPerPageOptions={[5, 10, 25]}
 					component="div"
 					count={captureMonitors.length}
 					rowsPerPage={rowsPerPage}

@@ -16,7 +16,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ViewWorkflowDialog from './Dialogs/ViewWorkflowDialog';
 import DetailDialog from './Dialogs/DetailDialog';
 import ExportXLSX from './ExportXLSX';
-import {getGroupProjects} from "../../../../providers/data/mockData/group_project";
+import {modifiedGroupProjectIds} from "../../../../providers/data/mockData/group_project";
 const styles: any = (theme: any) => {
 	return {
 		rowSmall: {
@@ -143,28 +143,6 @@ const CapMonitorComponent = (props) => {
 		});
 		return ids;
 	};
-
-	// lấy những id bên trong childs đưa vào. ex: 'abc_id': ['child1_id', 'child2_id', ...]
-	const getGroupProjectChildIds = (groupProjectChilds, groupProjectIdObject) => {
-		groupProjectChilds.forEach((groupProject) => {
-			groupProjectIdObject.push(groupProject.id);
-			const childs = groupProject.childs || [];
-			getGroupProjectChildIds(childs, groupProjectIdObject);
-		});
-	};
-
-	// đệ quy lấy tất cả project group id
-	const prepareGroupProjectIds = (groupProjects, result) => {
-		groupProjects.forEach((groupProject) => {
-			result[groupProject.id] = [ groupProject.id ];
-			const childs = groupProject.childs || [];
-			getGroupProjectChildIds(childs, result[groupProject.id]);
-			prepareGroupProjectIds(childs, result);
-		});
-	};
-
-	const modifiedGroupProjectIds = {};
-	prepareGroupProjectIds(getGroupProjects(),modifiedGroupProjectIds);
 
 	const checkDongHo = (groupId, cap_group_id) => {
 	  const groupProjectChildIds = modifiedGroupProjectIds[groupId] || [];

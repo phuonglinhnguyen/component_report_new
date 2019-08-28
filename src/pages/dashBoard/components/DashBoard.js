@@ -195,22 +195,21 @@ const DetailUser = (props) => {
 
 const DashBoard = (props) => {
 	const { classes, theme } = props;
-	const [ open, setOpen ] = useState(false);
-	const [ openUser, setOpenUser ] = useState(false);
-	const [ openTotalUser, setOpenTotalUser ] = useState(false);
+	const [open, setOpen] = useState(false);
+	const [openUser, setOpenUser] = useState(false);
+	const [openTotalUser, setOpenTotalUser] = useState(false);
 	const users = getDataUsers();
 	const toggleUser = () => {
 		openUser ? setOpenUser(false) : setOpenUser(true);
 	};
 
-	const [ anchorEl, setAnchorEl ] = useState(null);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const [selectedUser, setSelectedUser] = useState('');
 
-	const hoverUser = (event) => {
-		setAnchorEl(anchorEl ? null : event.currentTarget);
+	const hoverUser = (e, user) => {
+		setAnchorEl(e.currentTarget)
+		setSelectedUser(user)
 	};
-
-	const open1 = Boolean(anchorEl);
-	const id = open1 ? 'simple-popper' : undefined;
 
 	return (
 		<BrowserRouter>
@@ -281,18 +280,27 @@ const DashBoard = (props) => {
 							{users.map((user) => {
 								return (
 									<div>
-										<div className={classes.listUser} onMouseEnter={hoverUser} onMouseLeave={hoverUser}>
+										<div
+											className={classes.listUser}
+											onMouseEnter={(e) => hoverUser(e, user)}
+											onMouseLeave={(e) => hoverUser(e, null)}
+										>
 											<ListItem>{user.username}</ListItem>
-
-											{/* <span className={user.status === 'Online' ? classes.dotOnline : classes.dotOffline} /> */}
 										</div>
-										<Popper id={id} open={open1} anchorEl={anchorEl} placement="left" disablePortal={false}>
-											<DetailUser user={user} />
-										</Popper>
+
+
 									</div>
 								);
 							})}
 						</List>
+						<Popper
+							open={selectedUser !== null}
+							anchorEl={anchorEl}
+							placement="left"
+							disablePortal={false}
+						>
+							<DetailUser user={selectedUser} />
+						</Popper>
 						<Divider />
 						<div className={classes.totalUser}>
 							<span>Total users online:5</span>
