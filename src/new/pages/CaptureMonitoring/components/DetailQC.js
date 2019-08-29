@@ -8,6 +8,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
 import { createMuiTheme, MuiThemeProvider, withStyles } from '@material-ui/core/styles';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import AscIcon from '@material-ui/icons/ArrowUpward';
+import DescIcon from '@material-ui/icons/ArrowDownward';
 
 const styles: any = (theme: any) => {
 	return {
@@ -51,6 +54,16 @@ const DetailQC = (props) => {
 	const { classes, cap, choose } = props;
 	const [ page, setPage ] = useState(0);
 	const [ rowsPerPage, setRowsPerPage ] = useState(5);
+	const [ sortDes, setSortDes ] = useState('desc');
+	const chooseData = () => {
+		if (choose === 'Finished Export') {
+			const data = get(cap, 'finished_export.items', []);
+			return data;
+		}
+	};
+	const [ items, setItems ] = useState(() => {
+		return chooseData();
+	});
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -60,15 +73,37 @@ const DetailQC = (props) => {
 		setRowsPerPage(event.target.value);
 	};
 
-	const chooseData = () => {
-		if (choose === 'Finished Export') {
-			const data = get(cap, 'finished_export.items', []);
-			return data;
-		}
-	};
+	
 
 	let data = chooseData();
+	const compareByDesc = (key) => {
+		return (a, b) => {
+			if (a[key] < b[key]) return -1;
+			if (a[key] > b[key]) return 1;
+			return 0;
+		};
+	};
 
+	const compareByAsc = (key) => {
+		return (a, b) => {
+			if (a[key] > b[key]) return -1;
+			if (a[key] < b[key]) return 1;
+			return 0;
+		};
+	};
+
+	const sortBy = (key) => {
+		let arrCopy = [ ...items ];
+		if (sortDes == 'desc') {
+			setSortDes('asc');
+			arrCopy.sort(compareByDesc(key));
+			setItems(arrCopy);
+		} else if (sortDes == 'asc') {
+			setSortDes('desc');
+			arrCopy.sort(compareByAsc(key));
+			setItems(arrCopy);
+		}
+	};
 	return (
 		<div>
 			<MuiThemeProvider theme={theme}>
@@ -78,7 +113,11 @@ const DetailQC = (props) => {
 							<TableRow>
 								<TableCell className={classes.rowSmall}>No.</TableCell>
 								<TableCell align="center" className={classes.rowDetail}>
-									Import Date
+								<TableSortLabel direction={sortDes} onClick={() => sortBy('username')}>
+								Import Date
+										{sortDes === 'desc' ? <DescIcon style={{ fontSize: 15 }} /> : <AscIcon style={{ fontSize: 15 }} />}
+									</TableSortLabel>
+									
 								</TableCell>
 								<TableCell align="center" className={classes.rowDetail}>
 									Export Date
@@ -96,7 +135,7 @@ const DetailQC = (props) => {
 				<Paper style={{ overflow: 'auto', height: '300px' }}>
 					<Table style={{ tableLayout: 'fixed' }}>
 						<TableBody>
-							{data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, index) => {
+							{items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, index) => {
 								return (
 									<TableRow>
 										<TableCell className={classes.rowSmall}>{index + 1}</TableCell>

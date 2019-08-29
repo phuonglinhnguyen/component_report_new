@@ -4,7 +4,7 @@ import { DashboardStyle } from './assets';
 import { PageDecorator, getDataObject } from '@dgtx/coreui';
 import reducer from './redux/reducers';
 import * as types from './redux/actions';
-import { getDataUserOnline, getDataUsersAPI, getDataUsersAssignAPI, setUsersAssign } from './redux/actionCreators';
+import { getDataImportedHistory, getDataBatch } from './redux/actionCreators';
 import compose from 'recompose/compose';
 import DashBoard from './components/DashBoard';
 
@@ -17,17 +17,19 @@ export interface LayoutDefautProps {
 
 class Dashboard extends React.Component<LayoutDefautProps, any> {
 	componentWillMount = () => {
-		const { getDataUserOnline, getDataUsersAPI, getDataUsersAssignAPI } = this.props;
-		// getDataUserOnline();
-		// getDataUsersAPI();
-		// getDataUsersAssignAPI();
+		const { getDataBatch, match } = this.props;
+		const projectId = getDataObject('params.projectid', match);
+		getDataBatch(projectId);
 	};
 
 	render() {
-		const { classes } = this.props;
+		const { classes, match } = this.props;
+		const projectId = getDataObject('params.projectid', match);
+		console.log({ projectId });
+
 		return (
 			<div className={classes.root}>
-				<DashBoard {...this.props} />
+				<DashBoard projectId={projectId} {...this.props} />
 			</div>
 		);
 	}
@@ -36,15 +38,11 @@ export default compose(
 	PageDecorator({
 		resources: [ reducer ],
 		actions: {
-			// getDataUserOnline,
-			// getDataUsersAPI,
-			// getDataUsersAssignAPI,
-			// setUsersAssign
+			getDataImportedHistory,
+			getDataBatch
 		},
 		mapState: (state) => ({
-			// users: getDataObject(`resources.${types.NAME_REDUCER}.data.users`, state.core),
-			// user_assign: getDataObject(`resources.${types.NAME_REDUCER}.data.user_assign`, state.core),
-			// user_online: getDataObject(`resources.${types.NAME_REDUCER}.data.user_online`, state.core)
+			data: getDataObject(`resources.${types.NAME_REDUCER}.data`, state.core)
 		})
 	}),
 	withStyles(DashboardStyle, { withTheme: true })

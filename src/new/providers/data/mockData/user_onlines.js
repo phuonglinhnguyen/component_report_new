@@ -4,11 +4,16 @@ export const getStatusUserOnline = () => {
 			production: {
 				'116_190725_099_49306_001_DE_Card': {
 					dashboard: {
-						users: ['linhnp' ]
+						users: [ 'nhhien', 'quanvt' ]
+					},
+					Keying: {
+						users: [ 'linhnp' ]
+					},
+					Classify: {
+						users: [ 'tinhht' ]
 					}
 				}
 			}
-		},
-		
+		}
 	];
 };

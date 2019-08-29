@@ -10,7 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
 import Badge from '@material-ui/core/Badge';
-const styles: any = (theme: any) => {
+const styles= (theme) => {
 	return {
 		rowSmall: {
 			width: '10%'

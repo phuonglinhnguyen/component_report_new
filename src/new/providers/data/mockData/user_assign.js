@@ -1,4 +1,4 @@
-export const getTaskAssign = () => {
+export const getUserTaskAssign = () => {
 	return [
 		{
 			username: 'hoaipt',
@@ -29,7 +29,7 @@ export const getTaskAssign = () => {
 			id: '5d5ae856915418001eaefd7a'
 		},
 		{
-			username: 'r',
+			username: 'linhnp',
 			project_id: '5d495de5ea6d66005d49e4d7',
 			app_name: 'production',
 			tasks: [

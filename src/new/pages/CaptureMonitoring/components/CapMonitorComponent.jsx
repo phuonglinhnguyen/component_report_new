@@ -16,8 +16,9 @@ import IconButton from '@material-ui/core/IconButton';
 import ViewWorkflowDialog from './Dialogs/ViewWorkflowDialog';
 import DetailDialog from './Dialogs/DetailDialog';
 import ExportXLSX from './ExportXLSX';
-import {modifiedGroupProjectIds} from "../../../../providers/data/mockData/group_project";
-const styles: any = (theme: any) => {
+import { getGroupProjects } from '../../../../providers/data/mockData/group_project';
+
+const styles = (theme) => {
 	return {
 		rowSmall: {
 			width: '4%',
@@ -79,6 +80,24 @@ const CapMonitorComponent = (props) => {
 	const [ selectedCapture, setSelectedCapture ] = useState(null);
 	const [ choose, setChoose ] = useState('');
 	const [ role, setRole ] = useState('');
+
+	const headRows = [
+		{ id: 'importedAmonut', numeric: false, disablePadding: true, label: 'Imported Amount' },
+		{ id: 'classify', numeric: true, disablePadding: false, label: 'Classify' },
+		{ id: 'omr', numeric: true, disablePadding: false, label: 'OMR' },
+		{ id: 'invoiveHeader', numeric: true, disablePadding: false, label: 'Invoice Header' },
+		{ id: 'invoiveItem', numeric: true, disablePadding: false, label: 'Invoice Item' },
+		{ id: 'verify', numeric: false, disablePadding: true, label: 'Verify Hold/Bad' },
+		{ id: 'finishCapture', numeric: true, disablePadding: false, label: 'Finished Capture' },
+		{ id: 'availQC', numeric: true, disablePadding: false, label: 'Available for QC' },
+		{ id: 'finishQC', numeric: true, disablePadding: false, label: 'Finished QC' },
+		{ id: 'availQCAppro', numeric: true, disablePadding: false, label: 'Available for QC Approval' },
+		{ id: 'finishQCAppro', numeric: false, disablePadding: true, label: 'Finished QC Approval' },
+		{ id: 'availExport', numeric: true, disablePadding: false, label: 'Available For Export' },
+		{ id: 'finishExport', numeric: true, disablePadding: false, label: 'Finished Export' },
+		{ id: 'exportDate', numeric: true, disablePadding: false, label: 'Exported Date' },
+		{ id: 'workflow', numeric: true, disablePadding: false, label: 'WorkFlow' }
+	];
 
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
@@ -144,10 +163,33 @@ const CapMonitorComponent = (props) => {
 		return ids;
 	};
 
+	const getGroupProjectChildIds = (groupProjectChilds, groupProjectIdObject) => {
+		groupProjectChilds.forEach((groupProject) => {
+			groupProjectIdObject.push(groupProject.id);
+			const childs = groupProject.childs || [];
+			getGroupProjectChildIds(childs, groupProjectIdObject);
+		});
+	};
+
+	const prepareGroupProjectIds = (groupProjects, result) => {
+		groupProjects.forEach((groupProject) => {
+			result[groupProject.id] = [ groupProject.id ];
+			const childs = groupProject.childs || [];
+			getGroupProjectChildIds(childs, result[groupProject.id]);
+			prepareGroupProjectIds(childs, result);
+		});
+	};
+
+	const modifiedGroupProjectIds = {};
+	prepareGroupProjectIds(getGroupProjects(), modifiedGroupProjectIds);
+
 	const checkDongHo = (groupId, cap_group_id) => {
-	  const groupProjectChildIds = modifiedGroupProjectIds[groupId] || [];
-	  return groupProjectChildIds.some(groupProjectChildId => groupProjectChildId === cap_group_id)
-	}
+		const groupProjectChildIds = modifiedGroupProjectIds[groupId] || [];
+		if (groupId === null) {
+			return batchNameData;
+		}
+		return groupProjectChildIds.some((groupProjectChildId) => groupProjectChildId === cap_group_id);
+	};
 
 	return (
 		<div className={classes.report}>
@@ -182,51 +224,11 @@ const CapMonitorComponent = (props) => {
 								<TableCell align="center" className={classes.rowMedium}>
 									Batch Name
 								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Imported Amount
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Classify
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									OMR
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Invoice Header
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Invoice Item
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Verify Hold/Bad
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Finished Capture
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Available for QC
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Finished QC
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Available for QC Approval
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Finished QC Approval
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Available For Export
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Finished Export
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									Exported Date
-								</TableCell>
-								<TableCell align="right" className={classes.rowSmall}>
-									WorkFlow
-								</TableCell>
+								{headRows.map((row) => (
+									<TableCell key={row.id} align="center" className={classes.rowSmall}>
+										{row.label}
+									</TableCell>
+								))}
 							</TableRow>
 						</TableHead>
 					</Table>
@@ -236,6 +238,7 @@ const CapMonitorComponent = (props) => {
 						<TableBody>
 							{batchNameData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((cap, index) => {
 								const cap_group_id = cap.group_id || '';
+
 								const isDongHo = checkDongHo(groupId, cap_group_id);
 								if (!isDongHo) return null;
 								return (
@@ -331,12 +334,6 @@ const CapMonitorComponent = (props) => {
 										<TableCell
 											className={classes.assCursor}
 											align="right"
-											onClick={() => {
-												setOpenViewDetail(true);
-												setSelectedCapture(cap);
-												setChoose('Finished Export');
-												setRole('QC');
-											}}
 										>
 											{cap.finished_export.total}
 										</TableCell>

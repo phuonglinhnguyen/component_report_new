@@ -25,6 +25,7 @@ const styles: any = (theme: any) => {
 			paddingLeft: '10px',
 			textDecoration: 'none',
 			color: 'wheat',
+			
 			'&:hover': {
 				color: 'white'
 			}
