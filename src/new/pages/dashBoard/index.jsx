@@ -4,7 +4,7 @@ import { DashboardStyle } from './assets';
 import { PageDecorator, getDataObject } from '@dgtx/coreui';
 import reducer from './redux/reducers';
 import * as types from './redux/actions';
-import { getDataImportedHistory, getDataBatch } from './redux/actionCreators';
+import {  } from './redux/actionCreators';
 import compose from 'recompose/compose';
 import DashBoard from './components/DashBoard';
 
@@ -17,16 +17,13 @@ export interface LayoutDefautProps {
 
 class Dashboard extends React.Component<LayoutDefautProps, any> {
 	componentWillMount = () => {
-		const { getDataBatch, match } = this.props;
+		const { match} = this.props;
 		const projectId = getDataObject('params.projectid', match);
-		getDataBatch(projectId);
 	};
 
 	render() {
 		const { classes, match } = this.props;
 		const projectId = getDataObject('params.projectid', match);
-		console.log({ projectId });
-
 		return (
 			<div className={classes.root}>
 				<DashBoard projectId={projectId} {...this.props} />
@@ -38,11 +35,9 @@ export default compose(
 	PageDecorator({
 		resources: [ reducer ],
 		actions: {
-			getDataImportedHistory,
-			getDataBatch
 		},
 		mapState: (state) => ({
-			data: getDataObject(`resources.${types.NAME_REDUCER}.data`, state.core)
+			data: getDataObject(`resources.${types.NAME_REDUCER}.data`, state.core),
 		})
 	}),
 	withStyles(DashboardStyle, { withTheme: true })

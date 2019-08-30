@@ -10,7 +10,6 @@ export default {
 	name: types.NAME_REDUCER,
 	reducer: (state = initialState, action) => {
 		switch (action.type) {
-			case types.GET_DATA_IMPORTED_HISTORY:
 			case types.GET_BATCH:
 			case types.GET_DATA_USERS:
 			case types.GET_DATA_USERS_ONLINE:

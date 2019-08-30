@@ -33,7 +33,7 @@ const styles = (theme) => {
 			padding: '10px'
 		},
 		ass: {
-			width: '30px'
+			width: '5%'
 		},
 		filter: {
 			display: 'flex',
@@ -41,12 +41,15 @@ const styles = (theme) => {
 			justifyContent: 'space-between'
 		},
 		assCursor: {
-			width: '30px',
+			width: '5%',
 			'&:hover': {
 				cursor: 'pointer',
 				background: '#3c4858',
 				color: 'white'
 			}
+		},
+		assCursorChild: {
+			width: '5%'
 		},
 		btnViecw: {
 			fontSize: '10px'
@@ -60,18 +63,27 @@ const theme = createMuiTheme({
 			root: {
 				padding: '10px'
 			}
+		},
+		MuiTable: {
+			root: {
+				width: 'none'
+			}
 		}
 	}
 });
 
 const CapMonitorComponent = (props) => {
-	const { classes, data } = props;
-	const urlParams = new URLSearchParams(props.location.search);
-	const groupId = urlParams.get('groupId');
+	const { classes, data, data_batch, data_history, min, max} = props;
 
-	const captureMonitors = get(data, 'data', []);
+	// const urlParams = new URLSearchParams(props.location.search);
+	// const groupId = urlParams.get('groupId');
+
+	const captureMonitors = data_history && data_history ? data_history : [];
+
+	const dataDoc = get(data_batch, 'document_report', []);
+
 	const [ page, setPage ] = useState(0);
-	const [ rowsPerPage, setRowsPerPage ] = useState(25);
+	const [ rowsPerPage, setRowsPerPage ] = useState(5);
 	const [ fromDateSearch, setFromDateSearch ] = useState('');
 	const [ toDateSearch, setToDateSearch ] = useState('');
 	const [ batchNameSearch, setBatchNameSearch ] = useState('');
@@ -79,15 +91,17 @@ const CapMonitorComponent = (props) => {
 	const [ openViewDetail, setOpenViewDetail ] = useState(false);
 	const [ selectedCapture, setSelectedCapture ] = useState(null);
 	const [ choose, setChoose ] = useState('');
-	const [ role, setRole ] = useState('');
+	const [ checkHT, setCheckHT ] = useState('true');
 
-	const headRows = [
-		{ id: 'importedAmonut', numeric: false, disablePadding: true, label: 'Imported Amount' },
+	const headRowsTasks = [
 		{ id: 'classify', numeric: true, disablePadding: false, label: 'Classify' },
 		{ id: 'omr', numeric: true, disablePadding: false, label: 'OMR' },
 		{ id: 'invoiveHeader', numeric: true, disablePadding: false, label: 'Invoice Header' },
 		{ id: 'invoiveItem', numeric: true, disablePadding: false, label: 'Invoice Item' },
-		{ id: 'verify', numeric: false, disablePadding: true, label: 'Verify Hold/Bad' },
+		{ id: 'verify', numeric: false, disablePadding: true, label: 'Verify Hold/Bad' }
+	];
+
+	const headRows = [
 		{ id: 'finishCapture', numeric: true, disablePadding: false, label: 'Finished Capture' },
 		{ id: 'availQC', numeric: true, disablePadding: false, label: 'Available for QC' },
 		{ id: 'finishQC', numeric: true, disablePadding: false, label: 'Finished QC' },
@@ -101,6 +115,8 @@ const CapMonitorComponent = (props) => {
 
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
+		console.log({ newPage });
+
 		setPage(newPage);
 	};
 
@@ -111,18 +127,21 @@ const CapMonitorComponent = (props) => {
 	const filterDatetime = (captureMonitors, beginDatetime, endDatetime) => {
 		const beginTime = beginDatetime ? moment(beginDatetime).valueOf() : null;
 		const endTime = endDatetime ? moment(endDatetime).valueOf() : null;
-		return captureMonitors.filter((capture) => {
-			const captureTime = moment(capture.import_date).valueOf();
-			if (beginTime && endTime) {
-				return beginTime <= captureTime && captureTime <= endTime;
-			} else if (beginTime) {
-				return captureTime >= beginTime;
-			} else if (endTime) {
-				return captureTime <= endTime;
-			} else {
-				return true;
-			}
-		});
+		if (captureMonitors) {
+			return captureMonitors.filter((capture) => {
+				const captureTime = moment(capture.imported_date).valueOf();
+
+				if (beginTime && endTime) {
+					return beginTime <= captureTime && captureTime <= endTime;
+				} else if (beginTime) {
+					return captureTime >= beginTime;
+				} else if (endTime) {
+					return captureTime <= endTime;
+				} else {
+					return true;
+				}
+			});
+		}
 	};
 
 	const filterData = (data, field, strSearch) => {
@@ -185,10 +204,18 @@ const CapMonitorComponent = (props) => {
 
 	const checkDongHo = (groupId, cap_group_id) => {
 		const groupProjectChildIds = modifiedGroupProjectIds[groupId] || [];
-		if (groupId === null) {
-			return batchNameData;
-		}
+		// if (groupId === null) {
+		// 	return batchNameData;
+		// }
 		return groupProjectChildIds.some((groupProjectChildId) => groupProjectChildId === cap_group_id);
+	};
+	const filterHumanTasks = (item) => {
+		let result = batchNameData.filter((item) => {
+			if (!item) {
+				setCheckHT('true');
+			}
+		});
+		return result;
 	};
 
 	return (
@@ -224,6 +251,17 @@ const CapMonitorComponent = (props) => {
 								<TableCell align="center" className={classes.rowMedium}>
 									Batch Name
 								</TableCell>
+								<TableCell align="center" className={classes.rowSmall}>
+									Imported Amount
+								</TableCell>
+								{checkHT === 'true' ? null : (
+									headRowsTasks.map((row) => (
+										<TableCell key={row.id} align="center" className={classes.rowSmall}>
+											{row.label}
+										</TableCell>
+									))
+								)}
+
 								{headRows.map((row) => (
 									<TableCell key={row.id} align="center" className={classes.rowSmall}>
 										{row.label}
@@ -237,106 +275,121 @@ const CapMonitorComponent = (props) => {
 					<Table style={{ tableLayout: 'fixed' }}>
 						<TableBody>
 							{batchNameData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((cap, index) => {
-								const cap_group_id = cap.group_id || '';
+								{
+									/* const cap_group_id = cap.group_id || '';
 
 								const isDongHo = checkDongHo(groupId, cap_group_id);
-								if (!isDongHo) return null;
+								if (!isDongHo) return null; */
+								}
+								const check = filterHumanTasks(cap.classify);
+								if (!check) return null;
+								let importedDate = get(cap, 'imported_date', {});
+								let showImportedDate = moment(importedDate).format('YYYYMMDD');
 								return (
 									<TableRow>
-										<TableCell style={{ width: '20px' }}>{index + 1}</TableCell>
-										<TableCell align="right" className={classes.ass}>
-											{cap.import_date}
+										<TableCell style={{ width: '2%' }}>{index + 1}</TableCell>
+										<TableCell align="right" style={{ width: '5%' }}>
+											{showImportedDate}
 										</TableCell>
-										<TableCell align="center" style={{ width: '140px' }}>
-											{cap.file_path}
+										<TableCell align="center" style={{ width: '23%' }}>
+											{cap.batch_path}
 										</TableCell>
 										<TableCell
 											align="center"
 											style={{
-												width: '60px',
+												width: '10%',
 												padding: '10px'
 											}}
 										>
 											{cap.batch_name}
 										</TableCell>
 										<TableCell align="right" className={classes.ass}>
-											{cap.imported_amount}
+											{cap.doc_imported_amount ? cap.doc_imported_amount : 0}
 										</TableCell>
-										<TableCell
-											align="right"
-											className={classes.assCursor}
-											onClick={() => {
-												setOpenViewDetail(true);
-												setSelectedCapture(cap);
-												setRole('PM');
-												setChoose('Classify');
-											}}
-										>
-											{cap.classify.total}
-										</TableCell>
-										<TableCell
-											align="right"
-											className={classes.assCursor}
-											onClick={() => {
-												setOpenViewDetail(true);
-												setSelectedCapture(cap);
-												setRole('PM');
-												setChoose('Omr');
-											}}
-										>
-											{cap.omr.total}
-										</TableCell>
-										<TableCell
-											align="right"
-											className={classes.assCursor}
-											onClick={() => {
-												setOpenViewDetail(true);
-												setSelectedCapture(cap);
-												setRole('PM');
-												setChoose('Invoice Header');
-											}}
-										>
-											{cap.invoice_header.total}
-										</TableCell>
-										<TableCell
-											align="right"
-											className={classes.assCursor}
-											onClick={() => {
-												setOpenViewDetail(true);
-												setSelectedCapture(cap);
-												setRole('PM');
-												setChoose('Invoice Item');
-											}}
-										>
-											{cap.invoice_item.total}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.verify}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.finished_capture}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.available_QC}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.finished_QC}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.available_QC_Approval}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.finished_QC_Approval}
-										</TableCell>
-										<TableCell align="right" className={classes.assCursor}>
-											{cap.available_export}
-										</TableCell>
-										<TableCell
-											className={classes.assCursor}
-											align="right"
-										>
-											{cap.finished_export.total}
-										</TableCell>
+										{!check ? (
+											<React.Fragment>
+												<TableCell
+													align="right"
+													className={classes.assCursor}
+													onClick={() => {
+														setOpenViewDetail(true);
+														setSelectedCapture(cap);
+														setChoose('Classify');
+													}}
+												>
+													{cap.classify ? cap.classify : null}
+												</TableCell>
+												<TableCell
+													align="right"
+													className={classes.assCursor}
+													onClick={() => {
+														setOpenViewDetail(true);
+														setSelectedCapture(cap);
+														setChoose('Omr');
+													}}
+												>
+													{cap.omr}
+												</TableCell>
+												<TableCell
+													align="right"
+													className={classes.assCursor}
+													onClick={() => {
+														setOpenViewDetail(true);
+														setSelectedCapture(cap);
+														setChoose('Invoice Header');
+													}}
+												>
+													{cap.invoice_header}
+												</TableCell>
+												<TableCell
+													align="right"
+													className={classes.assCursor}
+													onClick={() => {
+														setOpenViewDetail(true);
+														setSelectedCapture(cap);
+														setChoose('Invoice Item');
+													}}
+												>
+													{cap.invoice_item}
+												</TableCell>
+												<TableCell align="right" className={classes.assCursor}>
+													{cap.verify}
+												</TableCell>
+											</React.Fragment>
+										) : null}
+
+										{dataDoc.map((doc) => {
+											return (
+												<React.Fragment>
+													<TableCell align="right" className={classes.assCursorChild}>
+														<span style={{ color: 'green', paddingRight: '20px' }}>{doc.capture}</span>
+														<span style={{ color: 'red' }}>{doc.none_capture}</span>
+													</TableCell>
+													<TableCell align="right" className={classes.assCursorChild}>
+														{doc.qc_none ? doc.qc_none : 0}
+													</TableCell>
+													<TableCell align="right" className={classes.assCursorChild}>
+														{/* finish_QC */}
+														{doc.qc_done ? doc.qc_done : 0}
+													</TableCell>
+													<TableCell align="right" className={classes.assCursorChild}>
+														{/* available_Qc_Approval */}
+														{doc.qc_approved ? doc.qc_approved : 0}
+													</TableCell>
+													<TableCell align="right" className={classes.assCursorChild}>
+														{/* finished_QC_Approval */}
+														{doc.qc_mistake ? doc.qc_mistake : 0}
+													</TableCell>
+													<TableCell align="right" className={classes.assCursorChild}>
+														{doc.export_collected}
+													</TableCell>
+													<TableCell className={classes.assCursorChild} align="right">
+														{doc.export_done}
+													</TableCell>
+												</React.Fragment>
+											);
+										})}
+
 										<TableCell className={classes.ass} align="right">
 											{cap.export_date}
 										</TableCell>
@@ -374,7 +427,6 @@ const CapMonitorComponent = (props) => {
 					cap={selectedCapture}
 					setCap={setSelectedCapture}
 					choose={choose}
-					role={role}
 					{...props}
 				/>
 			</MuiThemeProvider>

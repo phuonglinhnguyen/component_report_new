@@ -7,7 +7,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import DetailCapture from './../DetailCapture';
-import DetailQC from './../DetailQC';
 import moment from 'moment';
 
 const styles: any = (theme: any) => {
@@ -36,21 +35,21 @@ const theme = createMuiTheme({
 });
 
 const DetailDialog = (props) => {
-	const { classes, open, setOpen, cap, choose, role } = props;
+	const { classes, open, setOpen, cap, choose } = props;
+
 	const created_time = get(cap, 'created_date', {});
-	let tam = moment(created_time);
-	let date = tam._d;
+	let tam = moment(created_time).format("dddd, MMMM Do YYYY, h:mm:ss a");
 
 	return (
 		<MuiThemeProvider theme={theme}>
 			<Dialog open={open} onClose={() => setOpen(false)}>
 				<div className={classes.title}>
 					<DialogTitle id="alert-dialog-title">{'Detail task ' + choose}</DialogTitle>
-					<div style={{ paddingRight: '25px', color: 'gray' }}>{created_time}</div>
+					<div style={{ paddingRight: '25px', color: 'gray' }}>{tam}</div>
 				</div>
 
 				<DialogContent>
-					{role === 'QC' ? <DetailQC cap={cap} choose={choose} /> : <DetailCapture cap={cap} choose={choose} />}
+					<DetailCapture cap={cap} choose={choose} />
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => setOpen(false)} color="primary" autoFocus>

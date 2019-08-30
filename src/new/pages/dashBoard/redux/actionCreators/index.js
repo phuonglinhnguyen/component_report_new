@@ -1,2 +1,2 @@
-export * from './test';
+export * from './main';
 export * from './call_api';
