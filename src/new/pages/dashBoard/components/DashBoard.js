@@ -7,10 +7,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import Users from '@material-ui/icons/PermIdentity';
 import dashboardRoutes from '../routes/dashboardRoutes';
 import DashBoardComponent from './DashBoardComponent';
-import UserOnline from './Users/UserOnline';
 const drawerWidth = 240;
 
 const theme_override = createMuiTheme({
@@ -56,32 +54,13 @@ const styles = (theme) => ({
 			duration: theme.transitions.duration.enteringScreen
 		}),
 		marginLeft: drawerWidth
-	},
-	contentUser: {
-		flexGrow: 1,
-		transition: theme.transitions.create('margin', {
-			easing: theme.transitions.easing.sharp,
-			duration: theme.transitions.duration.leavingScreen
-		}),
-		marginRight: 0
-	},
-	contentShiftUser: {
-		transition: theme.transitions.create('margin', {
-			easing: theme.transitions.easing.easeOut,
-			duration: theme.transitions.duration.enteringScreen
-		}),
-		marginRight: drawerWidth
-	},
-
+	}
 });
 
 const DashBoard = (props) => {
-	const { classes } = props;
+	const { classes, projects, group_prj } = props;
 	const [ openDashBoard, setOpenDashBoard ] = useState(false);
-	const [ openUser, setOpenUser ] = useState(false);
-	const toggleUser = () => {
-		openUser ? setOpenUser(false) : setOpenUser(true);
-	};
+	const projectsAccess = projects && projects ? projects : [];
 
 	return (
 		<BrowserRouter>
@@ -102,25 +81,17 @@ const DashBoard = (props) => {
 								MONITORING
 							</Typography>
 						</Toolbar>
-						<Toolbar disableGutters>
-							<IconButton onClick={toggleUser} className={classNames(classes.menuButton)}>
-								<Users />
-							</IconButton>
-						</Toolbar>
 					</div>
-					<DashBoardComponent open={openDashBoard} setOpen={setOpenDashBoard} />
-					<UserOnline open={openUser} />
+					<DashBoardComponent
+						open={openDashBoard}
+						setOpen={setOpenDashBoard}
+						projectsAccess={projectsAccess}
+						{...props}
+					/>
 					<main
-						className={classNames(
-							classes.content,
-							{
-								[classes.contentShift]: openDashBoard
-							},
-							classes.contentUser,
-							{
-								[classes.contentShiftUser]: openUser
-							}
-						)}
+						className={classNames(classes.content, {
+							[classes.contentShift]: openDashBoard
+						})}
 					>
 						<Switch>
 							{dashboardRoutes.map((route, index) => {

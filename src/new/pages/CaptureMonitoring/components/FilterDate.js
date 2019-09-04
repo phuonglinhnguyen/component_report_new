@@ -33,10 +33,12 @@ const FilterDate = (props) => {
 		const value = e.target.value;
 		setToDateSearch(value);
 	};
+	
 	const onSearchBatchName = (e) => {
 		const value = e.target.value;
 		setBatchNameSearch(value);
 	};
+
 	return (
 		<div>
 			<TextField

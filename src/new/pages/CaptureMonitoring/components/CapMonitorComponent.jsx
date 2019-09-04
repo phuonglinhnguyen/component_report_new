@@ -17,7 +17,10 @@ import ViewWorkflowDialog from './Dialogs/ViewWorkflowDialog';
 import DetailDialog from './Dialogs/DetailDialog';
 import ExportXLSX from './ExportXLSX';
 import { getGroupProjects } from '../../../../providers/data/mockData/group_project';
-
+import classNames from 'classnames';
+import Users from '@material-ui/icons/PermIdentity';
+import UserOnline from './Users/UserOnline';
+const drawerWidth = 240;
 const styles = (theme) => {
 	return {
 		rowSmall: {
@@ -53,6 +56,25 @@ const styles = (theme) => {
 		},
 		btnViecw: {
 			fontSize: '10px'
+		},
+		menuButton: {
+			marginLeft: 12,
+			marginRight: 20
+		},
+		contentUser: {
+			flexGrow: 1,
+			transition: theme.transitions.create('margin', {
+				easing: theme.transitions.easing.sharp,
+				duration: theme.transitions.duration.leavingScreen
+			}),
+			marginRight: 0
+		},
+		contentShiftUser: {
+			transition: theme.transitions.create('margin', {
+				easing: theme.transitions.easing.easeOut,
+				duration: theme.transitions.duration.enteringScreen
+			}),
+			marginRight: drawerWidth
 		}
 	};
 };
@@ -73,7 +95,7 @@ const theme = createMuiTheme({
 });
 
 const CapMonitorComponent = (props) => {
-	const { classes, data, data_batch, data_history, min, max} = props;
+	const { classes, data, data_batch, data_history, tasks, tasks_count } = props;
 
 	// const urlParams = new URLSearchParams(props.location.search);
 	// const groupId = urlParams.get('groupId');
@@ -81,6 +103,8 @@ const CapMonitorComponent = (props) => {
 	const captureMonitors = data_history && data_history ? data_history : [];
 
 	const dataDoc = get(data_batch, 'document_report', []);
+	console.log({ tasks });
+	console.log({ tasks_count });
 
 	const [ page, setPage ] = useState(0);
 	const [ rowsPerPage, setRowsPerPage ] = useState(5);
@@ -92,14 +116,8 @@ const CapMonitorComponent = (props) => {
 	const [ selectedCapture, setSelectedCapture ] = useState(null);
 	const [ choose, setChoose ] = useState('');
 	const [ checkHT, setCheckHT ] = useState('true');
-
-	const headRowsTasks = [
-		{ id: 'classify', numeric: true, disablePadding: false, label: 'Classify' },
-		{ id: 'omr', numeric: true, disablePadding: false, label: 'OMR' },
-		{ id: 'invoiveHeader', numeric: true, disablePadding: false, label: 'Invoice Header' },
-		{ id: 'invoiveItem', numeric: true, disablePadding: false, label: 'Invoice Item' },
-		{ id: 'verify', numeric: false, disablePadding: true, label: 'Verify Hold/Bad' }
-	];
+	const [ openUser, setOpenUser ] = useState(false);
+	const headRowsTasks = tasks && tasks ? tasks : [];
 
 	const headRows = [
 		{ id: 'finishCapture', numeric: true, disablePadding: false, label: 'Finished Capture' },
@@ -115,8 +133,6 @@ const CapMonitorComponent = (props) => {
 
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
-		console.log({ newPage });
-
 		setPage(newPage);
 	};
 
@@ -124,24 +140,25 @@ const CapMonitorComponent = (props) => {
 		setRowsPerPage(event.target.value);
 	};
 
-	const filterDatetime = (captureMonitors, beginDatetime, endDatetime) => {
+	const toggleUser = () => {
+		openUser ? setOpenUser(false) : setOpenUser(true);
+	};
+
+	const filterDatetime = (data, beginDatetime, endDatetime) => {
 		const beginTime = beginDatetime ? moment(beginDatetime).valueOf() : null;
 		const endTime = endDatetime ? moment(endDatetime).valueOf() : null;
-		if (captureMonitors) {
-			return captureMonitors.filter((capture) => {
-				const captureTime = moment(capture.imported_date).valueOf();
-
-				if (beginTime && endTime) {
-					return beginTime <= captureTime && captureTime <= endTime;
-				} else if (beginTime) {
-					return captureTime >= beginTime;
-				} else if (endTime) {
-					return captureTime <= endTime;
-				} else {
-					return true;
-				}
-			});
-		}
+		return data.filter((capture) => {
+			const captureTime = moment(capture.imported_date).valueOf();
+			if (beginTime && endTime) {
+				return beginTime <= captureTime && captureTime <= endTime;
+			} else if (beginTime) {
+				return captureTime >= beginTime;
+			} else if (endTime) {
+				return captureTime <= endTime;
+			} else {
+				return true;
+			}
+		});
 	};
 
 	const filterData = (data, field, strSearch) => {
@@ -163,6 +180,7 @@ const CapMonitorComponent = (props) => {
 	if (batchNameSearch) {
 		batchNameData = filterData(dateToDateFilteredData, 'batch_name', batchNameSearch);
 	}
+	console.log(batchNameData);
 
 	const onRefresh = () => {
 		console.log('ahihi chua load');
@@ -217,7 +235,7 @@ const CapMonitorComponent = (props) => {
 		});
 		return result;
 	};
-
+	console.log(selectedCapture)
 	return (
 		<div className={classes.report}>
 			<MuiThemeProvider theme={theme}>
@@ -235,190 +253,161 @@ const CapMonitorComponent = (props) => {
 							<RefreshIcon />
 						</IconButton>
 						<ExportXLSX batchNameData={batchNameData} />
+						<IconButton onClick={toggleUser} className={classNames(classes.menuButton)}>
+							<Users />
+						</IconButton>
 					</div>
 				</div>
-				<Paper style={{ overflow: 'auto' }}>
-					<Table>
-						<TableHead style={{ background: 'lightgray' }}>
-							<TableRow>
-								<TableCell style={{ width: '2%' }}>No.</TableCell>
-								<TableCell align="center" className={classes.rowSmall}>
-									Imported Date
-								</TableCell>
-								<TableCell align="center" className={classes.rowLarge}>
-									File Path
-								</TableCell>
-								<TableCell align="center" className={classes.rowMedium}>
-									Batch Name
-								</TableCell>
-								<TableCell align="center" className={classes.rowSmall}>
-									Imported Amount
-								</TableCell>
-								{checkHT === 'true' ? null : (
-									headRowsTasks.map((row) => (
+				<UserOnline open={openUser} />
+				<main
+					className={classNames(classes.contentUser, {
+						[classes.contentShiftUser]: openUser
+					})}
+				>
+					<Paper style={{ overflow: 'auto' }}>
+						<Table>
+							<TableHead style={{ background: 'lightgray' }}>
+								<TableRow>
+									<TableCell style={{ width: '2%' }}>No.</TableCell>
+									<TableCell align="center" className={classes.rowSmall}>
+										Imported Date
+									</TableCell>
+									<TableCell align="center" className={classes.rowLarge}>
+										File Path
+									</TableCell>
+									<TableCell align="center" className={classes.rowMedium}>
+										Batch Name
+									</TableCell>
+									<TableCell align="center" className={classes.rowSmall}>
+										Imported Amount
+									</TableCell>
+									{headRowsTasks.map((row) => (
+										<TableCell key={row.id} align="center" className={classes.rowSmall}>
+											{row.name}
+										</TableCell>
+									))}
+
+									{headRows.map((row) => (
 										<TableCell key={row.id} align="center" className={classes.rowSmall}>
 											{row.label}
 										</TableCell>
-									))
-								)}
-
-								{headRows.map((row) => (
-									<TableCell key={row.id} align="center" className={classes.rowSmall}>
-										{row.label}
-									</TableCell>
-								))}
-							</TableRow>
-						</TableHead>
-					</Table>
-				</Paper>
-				<Paper style={{ overflow: 'auto', height: '675px' }}>
-					<Table style={{ tableLayout: 'fixed' }}>
-						<TableBody>
-							{batchNameData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((cap, index) => {
-								{
-									/* const cap_group_id = cap.group_id || '';
+									))}
+								</TableRow>
+							</TableHead>
+						</Table>
+					</Paper>
+					<Paper style={{ overflow: 'auto', height: '675px' }}>
+						<Table style={{ tableLayout: 'fixed' }}>
+							<TableBody>
+								{batchNameData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((cap, index) => {
+									{
+										/* const cap_group_id = cap.group_id || '';
 
 								const isDongHo = checkDongHo(groupId, cap_group_id);
 								if (!isDongHo) return null; */
-								}
-								const check = filterHumanTasks(cap.classify);
-								if (!check) return null;
-								let importedDate = get(cap, 'imported_date', {});
-								let showImportedDate = moment(importedDate).format('YYYYMMDD');
-								return (
-									<TableRow>
-										<TableCell style={{ width: '2%' }}>{index + 1}</TableCell>
-										<TableCell align="right" style={{ width: '5%' }}>
-											{showImportedDate}
-										</TableCell>
-										<TableCell align="center" style={{ width: '23%' }}>
-											{cap.batch_path}
-										</TableCell>
-										<TableCell
-											align="center"
-											style={{
-												width: '10%',
-												padding: '10px'
-											}}
-										>
-											{cap.batch_name}
-										</TableCell>
-										<TableCell align="right" className={classes.ass}>
-											{cap.doc_imported_amount ? cap.doc_imported_amount : 0}
-										</TableCell>
-										{!check ? (
-											<React.Fragment>
-												<TableCell
-													align="right"
-													className={classes.assCursor}
-													onClick={() => {
-														setOpenViewDetail(true);
-														setSelectedCapture(cap);
-														setChoose('Classify');
-													}}
-												>
-													{cap.classify ? cap.classify : null}
-												</TableCell>
-												<TableCell
-													align="right"
-													className={classes.assCursor}
-													onClick={() => {
-														setOpenViewDetail(true);
-														setSelectedCapture(cap);
-														setChoose('Omr');
-													}}
-												>
-													{cap.omr}
-												</TableCell>
-												<TableCell
-													align="right"
-													className={classes.assCursor}
-													onClick={() => {
-														setOpenViewDetail(true);
-														setSelectedCapture(cap);
-														setChoose('Invoice Header');
-													}}
-												>
-													{cap.invoice_header}
-												</TableCell>
-												<TableCell
-													align="right"
-													className={classes.assCursor}
-													onClick={() => {
-														setOpenViewDetail(true);
-														setSelectedCapture(cap);
-														setChoose('Invoice Item');
-													}}
-												>
-													{cap.invoice_item}
-												</TableCell>
-												<TableCell align="right" className={classes.assCursor}>
-													{cap.verify}
-												</TableCell>
-											</React.Fragment>
-										) : null}
+									}
+									let importedDate = get(cap, 'imported_date', {});
+									let showImportedDate = moment(importedDate).format('YYYYMMDD');
+									return (
+										<TableRow>
+											<TableCell style={{ width: '2%' }}>{index + 1}</TableCell>
+											<TableCell align="right" style={{ width: '5%' }}>
+												{showImportedDate}
+											</TableCell>
+											<TableCell align="center" style={{ width: '23%' }}>
+												{cap.batch_path}
+											</TableCell>
+											<TableCell
+												align="center"
+												style={{
+													width: '10%',
+													padding: '10px'
+												}}
+											>
+												{cap.batch_name}
+											</TableCell>
+											<TableCell align="right" className={classes.ass}>
+												{cap.doc_imported_amount ? cap.doc_imported_amount : 0}
+											</TableCell>
+											{tasks_count.map((task) => {
+												return (
+													<TableCell
+														align="right"
+														className={classes.assCursor}
+														onClick={() => {
+															setOpenViewDetail(true);
+															setSelectedCapture(cap);
+															setChoose('Classify');
+														}}
+													>
+														{task.count}
+													</TableCell>
+												);
+											})}
 
-										{dataDoc.map((doc) => {
-											return (
-												<React.Fragment>
-													<TableCell align="right" className={classes.assCursorChild}>
-														<span style={{ color: 'green', paddingRight: '20px' }}>{doc.capture}</span>
-														<span style={{ color: 'red' }}>{doc.none_capture}</span>
-													</TableCell>
-													<TableCell align="right" className={classes.assCursorChild}>
-														{doc.qc_none ? doc.qc_none : 0}
-													</TableCell>
-													<TableCell align="right" className={classes.assCursorChild}>
-														{/* finish_QC */}
-														{doc.qc_done ? doc.qc_done : 0}
-													</TableCell>
-													<TableCell align="right" className={classes.assCursorChild}>
-														{/* available_Qc_Approval */}
-														{doc.qc_approved ? doc.qc_approved : 0}
-													</TableCell>
-													<TableCell align="right" className={classes.assCursorChild}>
-														{/* finished_QC_Approval */}
-														{doc.qc_mistake ? doc.qc_mistake : 0}
-													</TableCell>
-													<TableCell align="right" className={classes.assCursorChild}>
-														{doc.export_collected}
-													</TableCell>
-													<TableCell className={classes.assCursorChild} align="right">
-														{doc.export_done}
-													</TableCell>
-												</React.Fragment>
-											);
-										})}
+											{dataDoc.map((doc) => {
+												return (
+													<React.Fragment>
+														<TableCell align="right" className={classes.assCursorChild}>
+															<span style={{ color: 'green', paddingRight: '20px' }}>{doc.capture}</span>
+															<span style={{ color: 'red' }}>{doc.none_capture}</span>
+														</TableCell>
+														<TableCell align="right" className={classes.assCursorChild}>
+															{doc.qc_none ? doc.qc_none : 0}
+														</TableCell>
+														<TableCell align="right" className={classes.assCursorChild}>
+															{/* finish_QC */}
+															{doc.qc_done ? doc.qc_done : 0}
+														</TableCell>
+														<TableCell align="right" className={classes.assCursorChild}>
+															{/* available_Qc_Approval */}
+															{doc.qc_approved ? doc.qc_approved : 0}
+														</TableCell>
+														<TableCell align="right" className={classes.assCursorChild}>
+															{/* finished_QC_Approval */}
+															{doc.qc_mistake ? doc.qc_mistake : 0}
+														</TableCell>
+														<TableCell align="right" className={classes.assCursorChild}>
+															{doc.export_collected}
+														</TableCell>
+														<TableCell className={classes.assCursorChild} align="right">
+															{doc.export_done}
+														</TableCell>
+													</React.Fragment>
+												);
+											})}
 
-										<TableCell className={classes.ass} align="right">
-											{cap.export_date}
-										</TableCell>
-										<TableCell className={classes.ass} align="right">
-											<Button className={classes.btnViecw} color="primary" onClick={() => setOpenViewWf(true)}>
-												View
-											</Button>
-										</TableCell>
-									</TableRow>
-								);
-							})}
-						</TableBody>
-					</Table>
-				</Paper>
-				<TablePagination
-					rowsPerPageOptions={[ 5, 10, 25 ]}
-					component="div"
-					count={captureMonitors.length}
-					rowsPerPage={rowsPerPage}
-					page={page}
-					backIconButtonProps={{
-						'aria-label': 'Previous Page'
-					}}
-					nextIconButtonProps={{
-						'aria-label': 'Next Page'
-					}}
-					onChangePage={handleChangePage}
-					onChangeRowsPerPage={handleChangeRowsPerPage}
-				/>
+											<TableCell className={classes.ass} align="right">
+												{cap.export_date}
+											</TableCell>
+											<TableCell className={classes.ass} align="right">
+												<Button className={classes.btnViecw} color="primary" onClick={() => setOpenViewWf(true)}>
+													View
+												</Button>
+											</TableCell>
+										</TableRow>
+									);
+								})}
+							</TableBody>
+						</Table>
+					</Paper>
+					<TablePagination
+						rowsPerPageOptions={[ 5, 10, 25 ]}
+						component="div"
+						count={batchNameData.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						backIconButtonProps={{
+							'aria-label': 'Previous Page'
+						}}
+						nextIconButtonProps={{
+							'aria-label': 'Next Page'
+						}}
+						onChangePage={handleChangePage}
+						onChangeRowsPerPage={handleChangeRowsPerPage}
+					/>
+				</main>
+
 				<ViewWorkflowDialog open={openViewWf} setOpen={setOpenViewWf} />
 				<DetailDialog
 					open={openViewDetail}

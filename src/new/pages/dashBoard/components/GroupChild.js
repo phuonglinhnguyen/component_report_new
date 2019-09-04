@@ -25,7 +25,7 @@ const styles: any = (theme: any) => {
 			paddingLeft: '10px',
 			textDecoration: 'none',
 			color: 'wheat',
-			
+
 			'&:hover': {
 				color: 'white'
 			}
@@ -66,22 +66,19 @@ const GroupChild = (props) => {
 	};
 	return (
 		<MuiThemeProvider theme={theme_override}>
-			<ListItem button className={classes.listItem}>
+			<ListItem button className={classes.listItem} onClick={collapse}>
 				<div className={classes.item} style={wrapStyles}>
 					{isEmptyFields ? (
 						<div style={{ padding: '12px' }} />
 					) : isOpenGroupChild[groupItem.name] ? (
-						<IconButton onClick={collapse} size="small">
-							<ExpandMore style={{ width: '15px' }} />
-						</IconButton>
+						<ExpandMore style={{ width: '15px', marginRight: '10px' }} />
 					) : (
-						<IconButton onClick={collapse} size="small">
-							<ExpandLess style={{ width: '15px' }} />
-						</IconButton>
+						<ExpandLess style={{ width: '15px', marginRight: '10px' }} />
 					)}
-					<Link to={`/dashboard/capture_monitoring?groupId=${groupItem.id}`} className={classes.itemLink}>
+					<span>{groupItem.name}</span>
+					{/* <Link to={`/dashboard/capture_monitoring?groupId=${groupItem.id}`} className={classes.itemLink}>
 						{groupItem.name}
-					</Link>
+					</Link> */}
 				</div>
 			</ListItem>
 		</MuiThemeProvider>

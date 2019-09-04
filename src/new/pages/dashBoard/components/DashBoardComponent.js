@@ -85,7 +85,7 @@ const DashBoardComponent = (props) => {
 						</IconButton>
 					</div>
 					<Divider />
-					<GroupProject />
+					<GroupProject {...props}/>
 				</Drawer>
 			</MuiThemeProvider>
 		</div>

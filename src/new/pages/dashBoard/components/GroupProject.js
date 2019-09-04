@@ -3,7 +3,6 @@ import get from 'lodash/get';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import Collapse from '@material-ui/core/Collapse';
-import { getGroupProjects } from '../../../../providers/data/mockData/group_project';
 import GroupChild from './GroupChild';
 
 const styles: any = (theme: any) => {
@@ -15,11 +14,11 @@ const styles: any = (theme: any) => {
 		root: {
 			width: '100%',
 			maxHeight: '500px',
-			overflowY: 'auto',
+			overflowY: 'auto'
 		},
 		listItem: {
 			color: 'wheat',
-			
+
 			paddingLeft: '0px !important',
 			'&:hover $listItemActions': {
 				display: 'block !important'
@@ -32,12 +31,11 @@ const styles: any = (theme: any) => {
 };
 
 const GroupProject: React.FC<IDefautProps, IDefautState> = (props) => {
-	const { classes } = props;
+	const { classes, group_prj, projectsAccess } = props;
 
-	const groupProjects = getGroupProjects();
-
+	const groupProjects = group_prj && group_prj ? group_prj : [];
 	const [ isOpenGroupChild, setIsOpenGroupChild ] = useState({});
-
+	
 	const renderChilds = (parentField, parentFields, paddingLeft, fieldIndexs) => {
 		return (
 			<Collapse in={isOpenGroupChild[parentField.name]} timeout="auto" unmountOnExit>
