@@ -41,7 +41,7 @@ export const getDataTaskCount = (processesId, instanceId ) => async (dispatch, g
 	dispatch({
 		type: types.CAPTURE_MONITORING_GET_TASK_COUNT,
 		payload: {
-			tasks_count: data
+			[`${processesId}_${instanceId}`]: data
 		},
 		meta: {
 			resource: types.NAME_REDUCER

@@ -25,6 +25,7 @@ export interface LayoutDefautProps {
 }
 
 class CaptureMonitoring extends React.Component<LayoutDefautProps, any> {
+
 	componentDidMount = () => {
 		const {
 			getDataBatch,
@@ -36,20 +37,12 @@ class CaptureMonitoring extends React.Component<LayoutDefautProps, any> {
 			task
 		} = this.props;
 		
-		const instanceId = getDataObject('bpmn_instance_id', capture) || '28a1d948-c8b2-11e9-b7cf-5675acad1b82';
-		const processesId = getDataObject('bpmn_definition_id', capture) || '04475bb3-9f0c-11e9-b091-9a45e4d4602b';
-		const taskId = getDataObject('id', task) || 'Type';
-		getDataBatch();
-		getDataImportedHistory();
-		getDataTaskInfo();
-
-		getDataTaskCount(processesId, instanceId);
-		getInstancesDetail(processesId, instanceId, taskId);
+		getDataImportedHistory(1, 5);
 	};
 
 	render() {
 		const { classes, capture, getInstancesDetail, getDataTaskCount, tasks_count } = this.props;
-
+		
 		return (
 			<div className={classes.root}>
 				<CapMonitorComponent {...this.props} />

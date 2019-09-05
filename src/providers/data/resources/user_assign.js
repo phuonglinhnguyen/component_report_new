@@ -1,5 +1,6 @@
 import { GET_LIST, fetchJson } from '@dgtx/coreui';
 import { UAC_ENDPOINT, APP_NAME } from '../../../constants';
+
 export default (type: string, resource: string, params: any) => {
 	switch (type) {
 		case GET_LIST: {

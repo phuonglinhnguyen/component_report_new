@@ -1,24 +1,5 @@
-// lấy những id bên trong childs đưa vào. ex: 'abc_id': ['child1_id', 'child2_id', ...]
-const getGroupProjectChildIds = (groupProjectChilds, groupProjectIdObject) => {
-  groupProjectChilds.forEach((groupProject) => {
-    groupProjectIdObject.push(groupProject.id);
-    const childs = groupProject.childs || [];
-    getGroupProjectChildIds(childs, groupProjectIdObject);
-  });
-};
-
-// đệ quy lấy tất cả project group id
-export const prepareGroupProjectIds = (groupProjects, result) => {
-  groupProjects.forEach((groupProject) => {
-    result[groupProject.id] = [groupProject.id];
-    const childs = groupProject.childs || [];
-    getGroupProjectChildIds(childs, result[groupProject.id]);
-    prepareGroupProjectIds(childs, result);
-  });
-};
-
 export const getGroupProjects = () => {
-  return [
+	return [
     {
       "ancestors": [],
       "name": "SAGA",
@@ -38,8 +19,8 @@ export const getGroupProjects = () => {
           "childs": [
             {
               "ancestors": [
-                "5cb81a5f952d2a001457a955",//saga
-                "5cb81ac5952d2a001457a957"//invoice
+                "5cb81a5f952d2a001457a955",
+                "5cb81ac5952d2a001457a957"
               ],
               "name": "040_test",
               "parent": "5cb81ac5952d2a001457a957",
@@ -119,7 +100,3 @@ export const getGroupProjects = () => {
     }
   ]
 };
-
-export const modifiedGroupProjectIds = {};
-
-prepareGroupProjectIds(getGroupProjects(), modifiedGroupProjectIds);

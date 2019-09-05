@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { get, filter, isEmpty } from 'lodash';
 import moment from 'moment';
 import { createMuiTheme, MuiThemeProvider, withStyles } from '@material-ui/core/styles';
@@ -21,6 +21,9 @@ import classNames from 'classnames';
 import Users from '@material-ui/icons/PermIdentity';
 import UserOnline from './Users/UserOnline';
 import { getDataObject } from '@dgtx/coreui';
+
+const TaskCount = React.lazy(() => import('./components/task_count'))
+
 const drawerWidth = 240;
 const styles = (theme) => {
 	return {
@@ -106,28 +109,36 @@ const CapMonitorComponent = (props) => {
 		setSelectedCapture,
 		capture,
 		setSelectedStep,
-		task
+		task,
+		getDataImportedHistory
 	} = props;
 
 	// const urlParams = new URLSearchParams(props.location.search);
 	// const groupId = urlParams.get('groupId');
 
-	const captureMonitors = data_history && data_history ? data_history : [];
+	const captureMonitors = data_history || [];
 
 	const dataDoc = get(data_batch, 'document_report', []);
 	console.log({ tasks });
 	console.log({ tasks_count });
 
-	const [ page, setPage ] = useState(0);
-	const [ rowsPerPage, setRowsPerPage ] = useState(5);
-	const [ fromDateSearch, setFromDateSearch ] = useState('');
-	const [ toDateSearch, setToDateSearch ] = useState('');
-	const [ batchNameSearch, setBatchNameSearch ] = useState('');
-	const [ openViewWf, setOpenViewWf ] = React.useState(false);
-	const [ openViewDetail, setOpenViewDetail ] = useState(false);
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(5);
+
+	// page: 4
+	// rowsPerPage: 10
+
+	// min = page + 1
+	// max = min + rowsPerPage - 1
+
+	const [fromDateSearch, setFromDateSearch] = useState('');
+	const [toDateSearch, setToDateSearch] = useState('');
+	const [batchNameSearch, setBatchNameSearch] = useState('');
+	const [openViewWf, setOpenViewWf] = React.useState(false);
+	const [openViewDetail, setOpenViewDetail] = useState(false);
 	// const [ selectedCapture ] = useState(null);
-	const [ checkHT, setCheckHT ] = useState('true');
-	const [ openUser, setOpenUser ] = useState(false);
+	const [checkHT, setCheckHT] = useState('true');
+	const [openUser, setOpenUser] = useState(false);
 	const headRowsTasks = tasks && tasks ? tasks : [];
 
 	const headRows = [
@@ -145,10 +156,16 @@ const CapMonitorComponent = (props) => {
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
+		const min = page + 1
+		const max = min + rowsPerPage - 1
+		getDataImportedHistory(min, max)
 	};
 
 	const handleChangeRowsPerPage = (event) => {
 		setRowsPerPage(event.target.value);
+		const min = page + 1
+		const max = min + rowsPerPage - 1
+		getDataImportedHistory(min, max)
 	};
 
 	const toggleUser = () => {
@@ -221,7 +238,7 @@ const CapMonitorComponent = (props) => {
 
 	const prepareGroupProjectIds = (groupProjects, result) => {
 		groupProjects.forEach((groupProject) => {
-			result[groupProject.id] = [ groupProject.id ];
+			result[groupProject.id] = [groupProject.id];
 			const childs = groupProject.childs || [];
 			getGroupProjectChildIds(childs, result[groupProject.id]);
 			prepareGroupProjectIds(childs, result);
@@ -251,8 +268,8 @@ const CapMonitorComponent = (props) => {
 		return;
 	};
 	const azzz = getDataObject('bpmn_instance_id', capture);
-	console.log("azzz",azzz);
-	
+	console.log("azzz", azzz);
+
 	return (
 		<div className={classes.report}>
 			<MuiThemeProvider theme={theme}>
@@ -313,6 +330,7 @@ const CapMonitorComponent = (props) => {
 							</TableHead>
 						</Table>
 					</Paper>
+
 					<Paper style={{ overflow: 'auto', height: '675px' }}>
 						<Table style={{ tableLayout: 'fixed' }}>
 							<TableBody>
@@ -348,7 +366,17 @@ const CapMonitorComponent = (props) => {
 											<TableCell align="right" className={classes.ass}>
 												{cap.doc_imported_amount ? cap.doc_imported_amount : 0}
 											</TableCell>
-											{tasks_count.map((task) => {
+
+											{/* 
+													04475bb3-9f0c-11e9-b091-9a45e4d4602b_28a1d948-c8b2-11e9-b7cf-5675acad1b82
+												*/}
+											<Suspense fallback={<div>0</div>}>
+												<TaskCount cap={cap} />
+											</Suspense>
+
+
+
+											{/* {tasks_count.map((task) => {
 												return (
 													<TableCell
 														align="right"
@@ -362,7 +390,11 @@ const CapMonitorComponent = (props) => {
 														{task.count}
 													</TableCell>
 												);
-											})}
+											})} */}
+
+											<Suspense fallback={<div>0</div>}>
+												<DataDoc cap={cap} />
+											</Suspense>
 
 											{dataDoc.map((doc) => {
 												return (
@@ -411,7 +443,7 @@ const CapMonitorComponent = (props) => {
 						</Table>
 					</Paper>
 					<TablePagination
-						rowsPerPageOptions={[ 5, 10, 25 ]}
+						rowsPerPageOptions={[5, 10, 25]}
 						component="div"
 						count={batchNameData.length}
 						rowsPerPage={rowsPerPage}
@@ -442,4 +474,5 @@ const CapMonitorComponent = (props) => {
 		</div>
 	);
 };
+
 export default withStyles(styles, { withTheme: true })(CapMonitorComponent);

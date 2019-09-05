@@ -168,7 +168,8 @@ const getBatch = () => {
 				transform_done: 0,
 				export_collected: 0,
 				export_done: 0
-			}
+			},
+		
 		]
 	};
 };

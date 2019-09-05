@@ -13,10 +13,10 @@ export default [
 		component: DashboardPage
 	},
 	{
-		name: 'test',
+		name: 'home',
 		exact: true,
-		path: '/dashboard/test',
-		component: CaptureMonitoringPage
+		path: '/home',
+		component: DashboardPage
 	},
 	{
 		name: 'page404',

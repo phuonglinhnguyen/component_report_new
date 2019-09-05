@@ -1,22 +1,25 @@
 import {
-  notificationDataProvider,
-  change_password,
-  user_onlines,
-  user_assign,
-  // routes
-  // group,
-  // users,
-  // project,
-  // user
-} from "./resources";
+	notificationDataProvider,
+	change_password,
+	user_onlines,
+	user_assign,
+	data_imported_history,
+	batch_report,
+	project_info,
+	group_project,
+	user_task_info,
+	task_count
+} from './resources';
+
 export default {
-  notification: notificationDataProvider,
-  change_password,
-  user_onlines,
-  user_assign
-  // routes
-  // group,
-  // users,
-  // project,
-  // user
+	notification: notificationDataProvider,
+	change_password,
+	user_onlines,
+	user_assign,
+	data_imported_history,
+	batch_report,
+	project_info,
+	group_project,
+	user_task_info,
+	task_count
 };
