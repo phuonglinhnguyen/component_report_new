@@ -20,15 +20,16 @@ import { getGroupProjects } from '../../../../providers/data/mockData/group_proj
 import classNames from 'classnames';
 import Users from '@material-ui/icons/PermIdentity';
 import UserOnline from './Users/UserOnline';
+import { getDataObject } from '@dgtx/coreui';
 const drawerWidth = 240;
 const styles = (theme) => {
 	return {
 		rowSmall: {
-			width: '4%',
+			width: '3%',
 			padding: '10px'
 		},
 		rowLarge: {
-			width: '18%',
+			width: '24%',
 			padding: '10px'
 		},
 		rowMedium: {
@@ -36,7 +37,7 @@ const styles = (theme) => {
 			padding: '10px'
 		},
 		ass: {
-			width: '5%'
+			width: '3%'
 		},
 		filter: {
 			display: 'flex',
@@ -44,7 +45,7 @@ const styles = (theme) => {
 			justifyContent: 'space-between'
 		},
 		assCursor: {
-			width: '5%',
+			width: '3%',
 			'&:hover': {
 				cursor: 'pointer',
 				background: '#3c4858',
@@ -52,7 +53,7 @@ const styles = (theme) => {
 			}
 		},
 		assCursorChild: {
-			width: '5%'
+			width: '3%'
 		},
 		btnViecw: {
 			fontSize: '10px'
@@ -95,7 +96,18 @@ const theme = createMuiTheme({
 });
 
 const CapMonitorComponent = (props) => {
-	const { classes, data, data_batch, data_history, tasks, tasks_count } = props;
+	const {
+		classes,
+		data,
+		data_batch,
+		data_history,
+		tasks,
+		tasks_count,
+		setSelectedCapture,
+		capture,
+		setSelectedStep,
+		task
+	} = props;
 
 	// const urlParams = new URLSearchParams(props.location.search);
 	// const groupId = urlParams.get('groupId');
@@ -113,8 +125,7 @@ const CapMonitorComponent = (props) => {
 	const [ batchNameSearch, setBatchNameSearch ] = useState('');
 	const [ openViewWf, setOpenViewWf ] = React.useState(false);
 	const [ openViewDetail, setOpenViewDetail ] = useState(false);
-	const [ selectedCapture, setSelectedCapture ] = useState(null);
-	const [ choose, setChoose ] = useState('');
+	// const [ selectedCapture ] = useState(null);
 	const [ checkHT, setCheckHT ] = useState('true');
 	const [ openUser, setOpenUser ] = useState(false);
 	const headRowsTasks = tasks && tasks ? tasks : [];
@@ -235,7 +246,13 @@ const CapMonitorComponent = (props) => {
 		});
 		return result;
 	};
-	console.log(selectedCapture)
+	console.log(capture);
+	const sosanhId = (id1, id2) => {
+		return;
+	};
+	const azzz = getDataObject('bpmn_instance_id', capture);
+	console.log("azzz",azzz);
+	
 	return (
 		<div className={classes.report}>
 			<MuiThemeProvider theme={theme}>
@@ -306,22 +323,24 @@ const CapMonitorComponent = (props) => {
 								const isDongHo = checkDongHo(groupId, cap_group_id);
 								if (!isDongHo) return null; */
 									}
+									const bpmn_definition_id = get(cap, 'bpmn_definition_id');
+									const bpmn_instance_id = get(cap, 'bpmn_instance_id');
+
 									let importedDate = get(cap, 'imported_date', {});
 									let showImportedDate = moment(importedDate).format('YYYYMMDD');
 									return (
 										<TableRow>
 											<TableCell style={{ width: '2%' }}>{index + 1}</TableCell>
-											<TableCell align="right" style={{ width: '5%' }}>
+											<TableCell align="right" style={{ width: '3%' }}>
 												{showImportedDate}
 											</TableCell>
-											<TableCell align="center" style={{ width: '23%' }}>
+											<TableCell align="center" style={{ width: '20%' }}>
 												{cap.batch_path}
 											</TableCell>
 											<TableCell
 												align="center"
 												style={{
-													width: '10%',
-													padding: '10px'
+													width: '5%'
 												}}
 											>
 												{cap.batch_name}
@@ -337,7 +356,7 @@ const CapMonitorComponent = (props) => {
 														onClick={() => {
 															setOpenViewDetail(true);
 															setSelectedCapture(cap);
-															setChoose('Classify');
+															setSelectedStep(task);
 														}}
 													>
 														{task.count}
@@ -413,9 +432,10 @@ const CapMonitorComponent = (props) => {
 					open={openViewDetail}
 					setOpen={setOpenViewDetail}
 					captureMonitors={captureMonitors}
-					cap={selectedCapture}
+					cap={capture}
+					task={task}
+					setTask={setSelectedStep}
 					setCap={setSelectedCapture}
-					choose={choose}
 					{...props}
 				/>
 			</MuiThemeProvider>

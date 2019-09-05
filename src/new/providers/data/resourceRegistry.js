@@ -8,7 +8,8 @@ import {
 	project_info,
 	group_project,
 	user_task_info,
-	task_count
+	task_count,
+	task_instances_detail
 } from './resources';
 
 export default {
@@ -21,5 +22,6 @@ export default {
 	project_info,
 	group_project,
 	user_task_info,
-	task_count
+	task_count,
+	task_instances_detail
 };

@@ -1,5 +1,5 @@
 import * as types from '../actions';
-import { callAPIGetProjectInfo, callAPIGetAllGroup } from './call_api';
+import { callAPIGetProjectInfo, callAPIGetAllGroup,callAPIInstancesDetail } from './call_api';
 export const getDataGroupProject = () => async (dispatch) => {
 	const data = await dispatch(callAPIGetAllGroup());
 

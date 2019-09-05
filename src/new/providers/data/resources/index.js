@@ -8,6 +8,7 @@ import project_info from './project_info';
 import group_project from './group_project';
 import user_task_info from './user_task_info';
 import task_count from './task_count'
+import task_instances_detail from './task_instances_detail'
 
 export {
 	notificationDataProvider,
@@ -19,5 +20,6 @@ export {
 	project_info,
 	group_project,
 	user_task_info,
-	task_count
+	task_count,
+	task_instances_detail
 };

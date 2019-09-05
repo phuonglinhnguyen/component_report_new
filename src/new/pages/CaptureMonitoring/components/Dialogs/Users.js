@@ -31,12 +31,13 @@ const Users = (props) => {
 	const users = getDataUsers();
 	const onChooseUser = (user) => {
 		const newItems = items.map((item) => {
-			if (selectedAssign.username === '') {
-				selectedAssign.username = user.username;
+			if (selectedAssign.assignee === null) {
+				selectedAssign.assignee = user.username;
 				return item;
 			}
 			return item;
 		});
+		
 		setItems(newItems);
 		setAnchorEl(null);
 	};

@@ -69,12 +69,34 @@ export const callAPIGetTaskInfo = () => async (dispatch) => {
 };
 
 export const callAPIGetTaskCount = (input) => async (dispatch) => {
-	const {processesId, instanceId } = input;
+	const { processesId, instanceId } = input;
 	let data = await new Promise((resolve, reject) => {
 		dispatch(
 			crudGetList(
 				'task_count',
 				{ processesId, instanceId },
+				{
+					onSuccess: ({ result: { data } }) => {
+						resolve(data);
+					},
+					onFailure: (data) => {
+						const code = getDataObject('result.body.Code', data) || 404;
+						const message = getDataObject('result.body.Error', data) || 'get_data_error';
+						resolve({ code, message });
+					}
+				}
+			)
+		);
+	});
+	return data;
+};
+export const callAPIInstancesDetail = (input) => async (dispatch) => {
+	const { processesId, instanceId, taskId } = input;
+	let data = await new Promise((resolve, reject) => {
+		dispatch(
+			crudGetList(
+				'task_instances_detail',
+				{ processesId, instanceId, taskId },
 				{
 					onSuccess: ({ result: { data } }) => {
 						resolve(data);

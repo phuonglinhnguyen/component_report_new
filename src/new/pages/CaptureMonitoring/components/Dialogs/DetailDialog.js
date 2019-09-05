@@ -35,7 +35,7 @@ const theme = createMuiTheme({
 });
 
 const DetailDialog = (props) => {
-	const { classes, open, setOpen, cap, choose } = props;
+	const { classes, open, setOpen, cap } = props;
 
 	const created_time = get(cap, 'created_date', {});
 	let tam = moment(created_time).format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -44,12 +44,12 @@ const DetailDialog = (props) => {
 		<MuiThemeProvider theme={theme}>
 			<Dialog open={open} onClose={() => setOpen(false)}>
 				<div className={classes.title}>
-					<DialogTitle id="alert-dialog-title">{'Detail task ' + choose}</DialogTitle>
+					<DialogTitle id="alert-dialog-title">{'Detail task '}</DialogTitle>
 					<div style={{ paddingRight: '25px', color: 'gray' }}>{tam}</div>
 				</div>
 
 				<DialogContent>
-					<DetailCapture cap={cap} choose={choose} />
+					<DetailCapture cap={cap} {...props} />
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => setOpen(false)} color="primary" autoFocus>

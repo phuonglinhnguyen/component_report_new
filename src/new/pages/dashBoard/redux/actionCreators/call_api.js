@@ -1,4 +1,5 @@
 import { crudGetList, getDataObject } from '@dgtx/coreui';
+import { async } from 'q';
 // group_project
 export const callAPIGetAllGroup = () => async (dispatch) => {
 	let data = await new Promise((resolve, reject) => {
@@ -43,3 +44,4 @@ export const callAPIGetProjectInfo = () => async (dispatch) => {
 	});
 	return data;
 };
+//task_instances_detail

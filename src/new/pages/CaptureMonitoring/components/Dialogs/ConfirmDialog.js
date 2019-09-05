@@ -21,8 +21,8 @@ const ConfirmDialog = (props) => {
 
 	const handleDelete = (task_id) => {
 		const newItems = items.map((item) => {
-			if (item.task_id === task_id) {
-				item.username = '';
+			if (item.id === task_id) {
+				item.assignee = null;
 				return item;
 			}
 			return item;

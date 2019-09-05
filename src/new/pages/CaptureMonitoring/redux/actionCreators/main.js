@@ -1,7 +1,11 @@
 import * as types from '../actions';
-import { getDataObject } from '@dgtx/coreui';
-import { cloneDeep } from 'lodash';
-import { callAPIGetBatch, callAPIGetDataImportedHistory, callAPIGetTaskInfo, callAPIGetTaskCount } from './call_api';
+import {
+	callAPIGetBatch,
+	callAPIGetDataImportedHistory,
+	callAPIGetTaskInfo,
+	callAPIGetTaskCount,
+	callAPIInstancesDetail
+} from './call_api';
 import { callAPIGetAllGroup } from '../../../dashBoard/redux/actionCreators/call_api';
 
 export const getGroup = () => async (dispatch) => {
@@ -21,7 +25,7 @@ export const getGroup = () => async (dispatch) => {
 export const getDataBatch = (projectId, batchId) => async (dispatch) => {
 	const data = await dispatch(callAPIGetBatch({ projectId, batchId }));
 	dispatch({
-		type: types.GET_BATCH,
+		type: types.CAPTURE_MONITORING_GET_BATCH,
 		payload: {
 			data_batch: data
 		},
@@ -31,11 +35,9 @@ export const getDataBatch = (projectId, batchId) => async (dispatch) => {
 	});
 };
 
-export const getDataTaskCount = (input) => async (dispatch) => {
-	const { processesId, instanceId } = input;
+export const getDataTaskCount = (processesId, instanceId ) => async (dispatch, getState) => {
 	const data = await dispatch(callAPIGetTaskCount({ processesId, instanceId }));
-	console.log({data});
-	
+	console.log(data);
 	dispatch({
 		type: types.CAPTURE_MONITORING_GET_TASK_COUNT,
 		payload: {
@@ -52,7 +54,7 @@ export const getDataImportedHistory = () => async (dispatch) => {
 	const data = await dispatch(callAPIGetDataImportedHistory());
 
 	dispatch({
-		type: types.GET_DATA_IMPORTED_HISTORY,
+		type: types.CAPTURE_MONITORING_GET_DATA_IMPORTED_HISTORY,
 		payload: {
 			data_history: data
 		},
@@ -79,7 +81,7 @@ export const getDataTaskInfo = () => async (dispatch) => {
 
 export const setCapture = (capture: any) => async (dispatch: any) => {
 	dispatch({
-		type: types.SET_CAPTURE,
+		type: types.CAPTURE_MONITORING_SET_CAPTURE,
 		payload: {
 			capture
 		},
@@ -91,9 +93,34 @@ export const setCapture = (capture: any) => async (dispatch: any) => {
 
 export const setSelectedCapture = (capture: any) => async (dispatch: any) => {
 	dispatch({
-		type: types.SET_SELECTED_CAPTURE,
+		type: types.CAPTURE_MONITORING_SET_SELECTED_CAPTURE,
 		payload: {
 			capture
+		},
+		meta: {
+			resource: types.NAME_REDUCER
+		}
+	});
+};
+export const setSelectedStep = (task: any) => async (dispatch: any) => {
+	dispatch({
+		type: types.CAPTURE_MONITORING_SET_SELECTED_STEP,
+		payload: {
+			task
+		},
+		meta: {
+			resource: types.NAME_REDUCER
+		}
+	});
+};
+
+export const getInstancesDetail = (processesId, instanceId,taskId) => async (dispatch) => {
+	const data = await dispatch(callAPIInstancesDetail({processesId, instanceId,taskId}));
+
+	dispatch({
+		type: types.CAPTURE_MONITORING_GET_INSTANCES_DETAIL,
+		payload: {
+			step: data
 		},
 		meta: {
 			resource: types.NAME_REDUCER

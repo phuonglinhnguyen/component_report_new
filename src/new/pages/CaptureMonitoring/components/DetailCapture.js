@@ -22,6 +22,7 @@ import DescIcon from '@material-ui/icons/ArrowDownward';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
+
 const styles = (theme) => {
 	return {
 		rowDetail: {
@@ -107,37 +108,27 @@ const theme = createMuiTheme({
 });
 
 const DetailCapture = (props) => {
-	const { classes, cap, choose } = props;
-	const chooseData = () => {
-		if (choose === 'Classify') {
-			const data = get(cap, 'classify.items', []);
-			return data;
-		} else if (choose === 'Omr') {
-			const data = get(cap, 'omr.items', []);
-			return data;
-		} else if (choose === 'Invoice Header') {
-			const data = get(cap, 'invoice_header.items', []);
-			return data;
-		} else if (choose === 'Invoice Item') {
-			const data = get(cap, 'invoice_item.items', []);
-			return data;
-		}
-	};
+	const { classes, step, tasks_count, task } = props;
+	console.log({ step });
+
+	console.log({ tasks_count });
+	console.log({ task });
 
 	const [ items, setItems ] = useState(() => {
-		return chooseData();
+		return step;
 	});
 	const [ anchorEl, setAnchorEl ] = useState(null);
 	const [ isOpenConfirm, setIsOpenConfirm ] = useState(false);
 	const [ itemDel, setItemDel ] = useState(null);
 	const [ userDel, setUserDel ] = useState(null);
 	const [ selectedAssign, setSelectedAssign ] = useState(null);
-	const open = Boolean(anchorEl);
-	const id = open ? 'simple-popover' : undefined;
 	const [ page, setPage ] = useState(0);
 	const [ rowsPerPage, setRowsPerPage ] = useState(5);
 	const [ sortDes, setSortDes ] = useState('desc');
 	const [ userNameSearch, setUserNameSearch ] = useState('');
+	const open = Boolean(anchorEl);
+	const id = open ? 'simple-popover' : undefined;
+
 	//==Rows Per Page
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -187,9 +178,9 @@ const DetailCapture = (props) => {
 
 	let userNameData = items;
 	if (userNameSearch) {
-		userNameData = filterData(items, 'username', userNameSearch);
+		userNameData = filterData(items, 'assignee', userNameSearch);
 	}
-	
+
 	const onSearchUserName = (e) => {
 		const value = e.target.value;
 		setUserNameSearch(value);
@@ -221,7 +212,7 @@ const DetailCapture = (props) => {
 							<TableRow>
 								<TableCell className={classes.rowSmall}>No.</TableCell>
 								<TableCell align="center" className={classes.rowId}>
-									<TableSortLabel direction={sortDes} onClick={() => sortBy('task_id')}>
+									<TableSortLabel direction={sortDes} onClick={() => sortBy('id')}>
 										Task ID
 										{sortDes === 'desc' ? <DescIcon style={{ fontSize: 15 }} /> : <AscIcon style={{ fontSize: 15 }} />}
 									</TableSortLabel>
@@ -230,7 +221,7 @@ const DetailCapture = (props) => {
 									File Path
 								</TableCell>
 								<TableCell align="center" className={classes.rowDetail}>
-									<TableSortLabel direction={sortDes} onClick={() => sortBy('username')}>
+									<TableSortLabel direction={sortDes} onClick={() => sortBy('assignee')}>
 										User
 										{sortDes === 'desc' ? <DescIcon style={{ fontSize: 15 }} /> : <AscIcon style={{ fontSize: 15 }} />}
 									</TableSortLabel>
@@ -250,13 +241,13 @@ const DetailCapture = (props) => {
 									<TableRow>
 										<TableCell className={classes.rowSmall}>{index + 1}</TableCell>
 										<TableCell align="right" className={classes.rowId}>
-											{item.task_id}
+											{item.id}
 										</TableCell>
 										<TableCell align="center" className={classes.rowLg}>
-											{item.file_path}
+											{item.executionId}
 										</TableCell>
 										<TableCell align="center" className={classes.rowDetail}>
-											{item.username === '' ? (
+											{item.assignee === null ? (
 												<Button
 													aria-describedby={id}
 													className={classes.btnAssign}
@@ -271,10 +262,10 @@ const DetailCapture = (props) => {
 											) : (
 												<Chip
 													icon={<FaceIcon />}
-													label={item.username}
+													label={item.assignee}
 													onDelete={() => {
-														setItemDel(item.task_id);
-														setUserDel(item.username);
+														setItemDel(item.id);
+														setUserDel(item.assignee);
 														setIsOpenConfirm(true);
 													}}
 													className={classes.chip}

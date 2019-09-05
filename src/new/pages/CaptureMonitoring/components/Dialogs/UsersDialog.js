@@ -1,5 +1,4 @@
 import React from 'react';
-import { get } from 'lodash';
 import { createMuiTheme, MuiThemeProvider, withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -7,6 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import DetailTotalUsers from '../Users/DetailTotalUsers';
+
 const styles: any = (theme: any) => {
 	return {
 		title: {
@@ -41,7 +41,6 @@ const UsersDialog = (props) => {
 				<div className={classes.title}>
 					<DialogTitle id="alert-dialog-title">{'Detail total users'}</DialogTitle>
 				</div>
-
 				<DialogContent>
 					<DetailTotalUsers users={users} />
 				</DialogContent>
