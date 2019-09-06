@@ -12,14 +12,14 @@ export default (type: string, resource: string, params: any) => {
 			// 	}
 			// );
 
-			// return fetchJson(
-			// 	`${REPORT_ENDPOINT}/apps/production-admin/projects/5d099a031927c3001465f932/data-imported-history?min_result=${min_result}&max_result=${max_result}`,
-			// 	{
-			// 		method: 'GET'
-			// 	}
-			// );
+			return fetchJson(
+				`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/data-imported-history?min_result=${min_result}&max_result=${max_result}`,
+				{
+					method: 'GET'
+				}
+			);
 
-			return fetchJson(`${REPORT_ENDPOINT}/apps/production-admin/projects/5d099a031927c3001465f932/data-imported-history`, {
+			return fetchJson(`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/data-imported-history`, {
 				method: 'GET'
 			});
 		}

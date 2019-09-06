@@ -1,9 +1,10 @@
 import { GET_LIST, fetchJson } from '@dgtx/coreui';
-import { API_ENDPOINT_SOCKET } from '../../../constants';
+import { API_ENDPOINT } from '../../../constants';
 export default (type: string, resource: string, params: any) => {
 	switch (type) {
 		case GET_LIST: {
-			return fetchJson(`${API_ENDPOINT_SOCKET}/user-onlines`, {
+      const { projectId } = params;
+			return fetchJson(`${API_ENDPOINT}/apps/production-admin/projects/${projectId}`, {
 				method: 'GET'
 			});
 		}

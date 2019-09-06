@@ -3,9 +3,9 @@ import { API_ENDPOINT_BPMN } from '../../../constants';
 export default (type: string, resource: string, params: any) => {
 	switch (type) {
 		case GET_LIST: {
-			const { projectId, batchId, processesId, instanceId } = params;
+			const { projectId, processesId, instanceId } = params;
 			return fetchJson(
-				`${API_ENDPOINT_BPMN}/apps/production-admin/projects/5d099a031927c3001465f932/monitors/processes/${processesId}/instances/${instanceId}/tasks/count`,
+				`${API_ENDPOINT_BPMN}/apps/production-admin/projects/${projectId}/monitors/processes/${processesId}/instances/${instanceId}/tasks/count`,
 				{
 					method: 'GET'
 				}
