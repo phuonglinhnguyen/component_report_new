@@ -10,7 +10,8 @@ export default (type: string, resource: string, params: any) => {
 			} else {
 				return Promise.resolve({
 					status: 400,
-					headers: {}
+					headers: {},
+					json: [],
 				});
 			}
 		}

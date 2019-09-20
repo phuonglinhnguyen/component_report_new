@@ -1,9 +1,9 @@
 import { GET_LIST, fetchJson } from '@dgtx/coreui';
-import { UAC_ENDPOINT } from '../../../constants';
-export default (type: string, resource: string, params: any) => {
+import { UAC_ENDPOINT, APP_NAME} from '../../../constants';
+export default (type, resource, params) => {
 	switch (type) {
 		case GET_LIST: {
-			return fetchJson(`${UAC_ENDPOINT}/apps/production-admin/projects?user_access=true`, {
+			return fetchJson(`${UAC_ENDPOINT}/apps/${APP_NAME}/projects?user_access=true`, {
 				method: 'GET'
 			});
 		}

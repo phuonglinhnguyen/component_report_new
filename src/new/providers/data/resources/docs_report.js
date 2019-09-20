@@ -3,17 +3,17 @@ import { REPORT_ENDPOINT, APP_NAME } from '../../../constants';
 export default (type: string, resource: string, params: any) => {
 	switch (type) {
 		case GET_LIST: {
-			const { projectId, batchId, startDate, perHour, hour } = params;
+			const { projectId, batchId, min_doc, max_doc } = params;
 
-			if (startDate && perHour && hour) {
+			if (min_doc && max_doc) {
 				return fetchJson(
-					`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/batches/${batchId}?date_start=${startDate}&perhour=${perHour}&hour_start=${hour}`,
+					`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/batches/${batchId}/docs?min_result=${min_doc}&max_result=${max_doc}`,
 					{
 						method: 'GET'
 					}
 				);
 			} else {
-				return fetchJson(`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/batches/${batchId}`, {
+				return fetchJson(`${REPORT_ENDPOINT}/apps/production-admin/projects/${projectId}/batches/${batchId}/docs`, {
 					method: 'GET'
 				});
 			}

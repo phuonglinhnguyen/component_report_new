@@ -5,7 +5,7 @@ export default key => {
   if (key === "public") {
     return routesPublic;
   }
-  return apps => {
-    return routesPrivate;
+  return funcs=> {
+    return routesPrivate(funcs);
   };
 };

@@ -7,9 +7,17 @@ import batch_report from './batch_report';
 import project_info from './project_info';
 import group_project from './group_project';
 import user_task_info from './user_task_info';
-import task_count from './task_count'
-import task_instances_detail from './task_instances_detail'
-import project from './project'
+import task_count from './task_count';
+import task_instances_detail from './task_instances_detail';
+import project_user from './project_user';
+import users from './users';
+import unclaim from './unclaim';
+import assignee from './assignee';
+import variables_task from './variables_task';
+import functions from './functions';
+import count_data_history from './count_data_history';
+import docs_report from './docs_report';
+import count_docs from './count_docs'
 export {
 	notificationDataProvider,
 	change_password,
@@ -22,5 +30,13 @@ export {
 	user_task_info,
 	task_count,
 	task_instances_detail,
-	project
+	project_user,
+	users,
+	unclaim,
+	assignee,
+	variables_task,
+	functions,
+	count_data_history,
+	docs_report,
+	count_docs
 };

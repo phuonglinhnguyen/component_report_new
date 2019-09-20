@@ -1,0 +1,14 @@
+// export const KEY_TRANSLATE = '$DGS/DASHBROAD_CHANGE_VALUE_ITEM'
+export const KEY_TRANSLATE = 'dashboard';
+export const NAME_REDUCER = 'dashboard';
+
+export const OPEN_GROUP_TREE = '$DGS/OPEN_GROUP_TREE';
+export const OPEN_DRAWER = '$DGS/OPEN_DRAWER';
+export const GET_GROUP_PROJECTS = '$DGS/GET_GROUP_PROJECTS';
+export const GET_PROJECTS_INFO = '$DGS/GET_PROJECTS_INFO';
+export const GET_FUNCTIONS = '$DGS/GET_FUNCTIONS';
+export const CLICK_PROJECT = '$DGS/CLICK_PROJECT';
+export const CLICK_FUNCTION = '$DGS/CLICK_FUNCTION';
+export const ON_SEARCH_FUNCTION = '$DGS/ON_SEARCH_FUNCTION';
+export const ON_SEARCH_GROUP_TREE = '$DGS/ON_SEARCH_GROUP_TREE';
+export const UNMOUNT = '$DGS/UNMOUNT';

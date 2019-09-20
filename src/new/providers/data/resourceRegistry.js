@@ -10,7 +10,15 @@ import {
 	user_task_info,
 	task_count,
 	task_instances_detail,
-	project
+	project_user,
+	users,
+	unclaim,
+	assignee,
+	variables_task,
+	count_data_history,
+	functions,
+	docs_report,
+	count_docs
 } from './resources';
 
 export default {
@@ -25,5 +33,13 @@ export default {
 	user_task_info,
 	task_count,
 	task_instances_detail,
-	project
+	project_user,
+	users,
+	unclaim,
+	assignee,
+	variables_task,
+	functions,
+	count_data_history,
+	docs_report,
+	count_docs
 };
